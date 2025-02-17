@@ -1,8 +1,15 @@
 import express from "express";
-import { createOrder, getOrder } from "../Application/order";
-import { isAuthenticated } from "./middleware/authentication-middleware";
+import { createOrder, getMyOrders } from "../Application/order";
+import { validateRequest } from "../Infrastructure/Middleware/validate-request";
+import { CreateOrderDTO } from "../domain/dto/order";
+import { requireAuth } from "../Application/order";
 
-export const orderRouter = express.Router();
+const orderRouter = express.Router();
 
-orderRouter.route("/").post(createOrder);
-orderRouter.route("/:id").get(getOrder);
+// Apply requireAuth middleware to all order routes
+orderRouter.use(requireAuth);
+
+orderRouter.post("/", validateRequest(CreateOrderDTO), createOrder);
+orderRouter.get("/my-orders", getMyOrders);
+
+export { orderRouter };

@@ -3,7 +3,7 @@ import NotFoundError from "../domain/errors/not-found-error";
 import ValidationError from "../domain/errors/validation-error";
 import Category from "../Infrastructure/Schemas/Category";
 import { Request, Response, NextFunction } from "express";
-import { z } from "zod";
+//import { z } from "zod";
 
 export const getCategories = async (
   req: Request,
@@ -11,9 +11,8 @@ export const getCategories = async (
   next: NextFunction
 ) => {
   try {
-    const data = await Category.find();
-    res.status(200).json(data);
-    return;
+    const categories = await Category.find().sort({ name: 1 });
+    res.status(200).json(categories);
   } catch (error) {
     next(error);
   }
@@ -25,17 +24,23 @@ export const createCategory = async (
   next: NextFunction
 ) => {
   try {
-    // const result:CategoryDTO = (req.body); //Only compile time even if its wronng type in req.body
-    const result = CategoryDTO.safeParse(req.body);
-    if (!result.success) {
-      throw new ValidationError("Invalid category data");
+    const { name, description } = req.body;
+    
+    const existingCategory = await Category.findOne({ name });
+    if (existingCategory) {
+      return res.status(400).json({ errors: ["Category with this name already exists"] });
     }
 
-    await Category.create(result.data);
-    res.status(201).send();
-    return;
+    const category = new Category({ name, description });
+    await category.save();
+    
+    res.status(201).json(category);
   } catch (error) {
-    next(error);
+    if (error instanceof Error) {
+      res.status(400).json({ errors: [error.message] });
+    } else {
+      next(error);
+    }
   }
 };
 
