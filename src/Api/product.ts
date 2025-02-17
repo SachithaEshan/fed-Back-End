@@ -1,20 +1,23 @@
 import express from "express";
+import { isAuthenticated, isAdmin } from "./middleware/authorization-middleware";
 import {
   getProducts,
   createProduct,
   getProduct,
-  deleteProduct,
   updateProduct,
+  deleteProduct,
 } from "../Application/Product";
 
-export const productRouter = express.Router();
+const productRouter = express.Router();
 
-productRouter
-  .route("/")
-  .get(getProducts)
-  .post(createProduct);
-productRouter
-  .route("/:id")
-  .get(getProduct)
-  .delete(deleteProduct)
-  .patch(updateProduct);
+// Public routes
+productRouter.get("/", getProducts);
+productRouter.get("/:id", getProduct);
+
+// Admin protected routes
+productRouter.post("/", isAuthenticated, isAdmin, createProduct);
+productRouter.put("/:id", isAuthenticated, isAdmin, updateProduct);
+productRouter.delete("/:id", isAuthenticated, isAdmin, deleteProduct);
+
+export { productRouter };
+  

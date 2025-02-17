@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import Address from './address';  // Import the Address model
 
 const OrderProductSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
+  _id: { type: mongoose.Schema.Types.ObjectId, required: true },  // Changed from productId
   name: { type: String, required: true },
-  price: { type: String, required: true },
+  price: { type: Number, required: true },
   image: { type: String, required: true },
   description: { type: String, required: true },
 });
@@ -15,17 +16,20 @@ const ItemSchema = new mongoose.Schema({
 
 const OrderSchema = new mongoose.Schema({
   userId: { type: String, required: true },
-  addressId: { type: String, required: true },
-  items: {
-    type: [ItemSchema],
-    required: true,
+  addressId: { type: mongoose.Schema.Types.Mixed, required: true },
+  items: [ItemSchema],
+  orderStatus: {
+    type: String,
+    enum: ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"],
+    default: "PENDING",
   },
   paymentStatus: {
     type: String,
     enum: ["PENDING", "PAID"],
     default: "PENDING",
-    required: true,
   },
+}, {
+  timestamps: true // This adds createdAt and updatedAt fields
 });
 
 const Order = mongoose.model("Order", OrderSchema);

@@ -1,7 +1,7 @@
-
+import { CreateProductDTO } from "../domain/dto/product";
 import NotFoundError from "../domain/errors/not-found-error";
 import Product from "../Infrastructure/Schemas/Product";
-
+import ValidationError from "../domain/errors/validation-error";
 import { Request, Response, NextFunction } from "express";
 
 /*const products = [
@@ -79,93 +79,87 @@ import { Request, Response, NextFunction } from "express";
   },
 ];*/
 
-export const getProducts = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { categoryId } = req.query;
-    if (!categoryId) {
-      const data = await Product.find();
-      res.status(200).json(data);
-      return;
-    }
-
-    const data = await Product.find({ categoryId });
-    res.status(200).json(data);
-    return;
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.status(200).json(products);
   } catch (error) {
     next(error);
   }
 };
 
-export const createProduct = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await Product.create(req.body);
-    res.status(201).send();
-    return;
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getProduct = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = req.params.id;
-    const product = await Product.findById(id).populate("categoryId");
+    const product = await Product.findById(req.params.id);
     if (!product) {
-      throw new NotFoundError("Product not found");
+      return res.status(404).json({ error: 'Product not found' });
     }
-    res.status(200).json(product).send();
-    return;
+    res.status(200).json(product);
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteProduct = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = req.params.id;
-    const product = await Product.findByIdAndDelete(id);
+    const { name, price, description, categoryId, image, inventory } = req.body;
+
+    const product = new Product({
+      name,
+      price: Number(price),
+      description,
+      categoryId,
+      image,
+      inventory: Number(inventory)
+    });
+
+    await product.save();
+    res.status(201).json(product);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ errors: [error.message] });
+    } else {
+      next(error);
+    }
+  }
+};
+
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, price, description, category, image, inventory } = req.body;
+    
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        price: Number(price),
+        description,
+        category,
+        image,
+        inventory: Number(inventory)
+      },
+      { new: true, runValidators: true }
+    );
 
     if (!product) {
-      throw new NotFoundError("Product not found");
+      return res.status(404).json({ error: 'Product not found' });
     }
+
+    res.status(200).json(product);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
     res.status(204).send();
-    return;
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const updateProduct = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = req.params.id;
-    const product = await Product.findByIdAndUpdate(id, req.body);
-
-    if (!product) {
-      throw new NotFoundError("Product not found");
-    }
-
-    res.status(200).send(product);
-    return;
   } catch (error) {
     next(error);
   }
