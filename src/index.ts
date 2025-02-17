@@ -11,13 +11,12 @@ import { categoryRouter } from "./Api/category";
 import { paymentsRouter } from "./Api/payment";
 import { clerkMiddleware } from "@clerk/express";
 import "dotenv/config";
-import gOPD from 'gopd';
 
 
 
 const app = express();
 
-app.use(cors());
+//app.use(cors());
 app.use(json());
 app.use(clerkMiddleware());
 app.use(cors({ origin: "https://fed-storefront-frontend-sachitha.netlify.app" }));
@@ -30,7 +29,6 @@ app.use("/Api/payments", paymentsRouter);
 
 // Error handling middleware should be last
 //app.use(errorHandler);
-const gopd: any = gOPD; 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error("Global error:", err);
