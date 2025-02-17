@@ -18,7 +18,7 @@ const app = express();
 app.use(cors());
 app.use(json());
 app.use(clerkMiddleware());
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: "https://fed-storefront-frontend-sachitha.netlify.app" }));
 
 // Routes
 app.use("/Api/products", productRouter);
@@ -38,9 +38,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
+app.use(globalErrorHandlingMiddleware);
 
 connectDB();
-app.listen(8000, () => console.log(`Server running on port ${8000}`));
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // const start = async () => {
 //   try {
