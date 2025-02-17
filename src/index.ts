@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import { json } from "body-parser";
 import { orderRouter } from "./Api/order";
-import { errorHandler } from "./Infrastructure/Middleware/error-handler";
+//import { errorHandler } from "./Infrastructure/Middleware/error-handler";
 import { productRouter } from "./Api/product";
 import { connectDB } from "./Infrastructure/db";
 import globalErrorHandlingMiddleware from "./Api/middleware/global-error-handling-middleware";
