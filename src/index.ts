@@ -27,7 +27,7 @@ app.use("/Api/orders", orderRouter);
 app.use("/Api/payments", paymentsRouter);
 
 // Error handling middleware should be last
-app.use(errorHandler);
+//app.use(errorHandler);
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
