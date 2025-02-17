@@ -30,7 +30,7 @@ app.use("/Api/payments", paymentsRouter);
 
 // Error handling middleware should be last
 //app.use(errorHandler);
-
+const gopd: any = gOPD; 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error("Global error:", err);
