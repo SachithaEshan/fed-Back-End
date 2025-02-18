@@ -26,7 +26,7 @@ categoryRouter.post(
   "/",
   isAuthenticated as RequestHandler,
   asyncHandler(isAdmin as RequestHandler),
-  asyncHandler((req, res, next) => createCategory(req as AuthenticatedRequest, res, next))
+  asyncHandler((req: Request, res, next) => createCategory(req, res, next))
 );
 
 categoryRouter.route("/:id")
@@ -34,10 +34,10 @@ categoryRouter.route("/:id")
   .delete(
     isAuthenticated as RequestHandler,
     asyncHandler(isAdmin as RequestHandler),
-    asyncHandler((req, res, next) => deleteCategory(req as AuthenticatedRequest, res, next))
+    asyncHandler((req: Request, res, next) => deleteCategory(req, res, next))
   )
   .patch(
     isAuthenticated as RequestHandler,
     asyncHandler(isAdmin as RequestHandler),
-    asyncHandler((req, res, next) => updateCategory(req as AuthenticatedRequest, res, next))
+    asyncHandler((req: Request, res, next) => updateCategory(req, res, next))
   );
