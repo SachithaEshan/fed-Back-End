@@ -15,7 +15,6 @@ import mongoose from 'mongoose';
 import { requireAuth as clerkRequireAuth } from "@clerk/express";
 // import { requireAuth } from "../Infrastructure/Middleware/require-auth";
 
-
 // const orderSchema = z.object({
 //   items: z
 //     .object({
@@ -84,6 +83,10 @@ export const createOrder = async (
 ) => {
   try {
     const { items, shippingAddress } = CreateOrderDTO.parse(req.body);
+    
+    if (!req.auth?.userId) {
+      throw new ValidationError("User must be authenticated");
+    }
     const userId = req.auth.userId;
 
     // Log the received data
@@ -134,16 +137,19 @@ export const getMyOrders = async (
   next: NextFunction
 ) => {
   try {
+    if (!req.auth?.userId) {
+      throw new ValidationError("User must be authenticated");
+    }
     const userId = req.auth.userId;
     
-    console.log("Fetching orders for user:", userId); // Debug log
+    console.log("Fetching orders for user:", userId);
 
     const orders = await Order.find({ userId })
       .sort({ createdAt: -1 })
       .lean()
       .exec();
 
-    console.log("Found orders:", orders); // Debug log
+    console.log("Found orders:", orders);
 
     if (!orders) {
       return res.status(200).json([]);
@@ -151,7 +157,7 @@ export const getMyOrders = async (
 
     res.status(200).json(orders);
   } catch (error) {
-    console.error("Error in getMyOrders:", error); // Debug log
+    console.error("Error in getMyOrders:", error);
     next(error);
   }
 };
