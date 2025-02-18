@@ -1,4 +1,5 @@
 import express from "express";
+import asyncHandler from "express-async-handler"; // ✅ Import asyncHandler
 import { isAuthenticated, isAdmin } from "./middleware/authorization-middleware";
 import {
   getProducts,
@@ -11,13 +12,12 @@ import {
 const productRouter = express.Router();
 
 // Public routes
-productRouter.get("/", getProducts);
-productRouter.get("/:id", getProduct);
+productRouter.get("/", asyncHandler(getProducts)); // ✅ Wrap with asyncHandler
+productRouter.get("/:id", asyncHandler(getProduct)); // ✅ Wrap with asyncHandler
 
 // Admin protected routes
-productRouter.post("/", isAuthenticated, isAdmin, createProduct);
-productRouter.put("/:id", isAuthenticated, isAdmin, updateProduct);
-productRouter.delete("/:id", isAuthenticated, isAdmin, deleteProduct);
+productRouter.post("/", isAuthenticated, isAdmin, asyncHandler(createProduct)); // ✅ Fix async
+productRouter.put("/:id", isAuthenticated, isAdmin, asyncHandler(updateProduct));
+productRouter.delete("/:id", isAuthenticated, isAdmin, asyncHandler(deleteProduct));
 
 export { productRouter };
-  

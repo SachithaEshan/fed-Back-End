@@ -92,7 +92,8 @@ export const getProduct = async (req: Request, res: Response, next: NextFunction
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Product not found' });
+      return;
     }
     res.status(200).json(product);
   } catch (error) {
@@ -127,7 +128,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, price, description, category, image, inventory } = req.body;
-    
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       {
@@ -136,13 +137,14 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
         description,
         category,
         image,
-        inventory: Number(inventory)
+        inventory: Number(inventory),
       },
       { new: true, runValidators: true }
     );
 
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Product not found' });
+      return;
     }
 
     res.status(200).json(product);
@@ -154,9 +156,10 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
-    
+
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Product not found' });
+      return;
     }
 
     res.status(204).send();

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Address from './address';  // Import the Address model
 
 const OrderProductSchema = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, required: true },  // Changed from productId
+  _id: { type: String, required: true },  // Changed from ObjectId to String
   name: { type: String, required: true },
   price: { type: Number, required: true },
   image: { type: String, required: true },
@@ -16,7 +16,7 @@ const ItemSchema = new mongoose.Schema({
 
 const OrderSchema = new mongoose.Schema({
   userId: { type: String, required: true },
-  addressId: { type: mongoose.Schema.Types.Mixed, required: true },
+  addressId: { type: mongoose.Schema.Types.ObjectId, ref: 'Address', required: true }, // Fixed type
   items: [ItemSchema],
   orderStatus: {
     type: String,
