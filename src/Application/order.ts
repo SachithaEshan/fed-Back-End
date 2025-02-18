@@ -82,33 +82,56 @@ export const createOrder = async (
   next: NextFunction
 ) => {
   try {
+    console.log('Received request body:', req.body);
+    
     const { items, shippingAddress } = CreateOrderDTO.parse(req.body);
+    console.log('Parsed DTO data:', { items, shippingAddress });
+    
     const { userId } = getAuth(req);
+    console.log('User ID from auth:', userId);
     
     if (!userId) {
       throw new ValidationError("User must be authenticated");
     }
 
-    // First create the address
+    // Create the address first
+    console.log('Creating address...');
     const address = await Address.create(shippingAddress);
+    console.log('Created address:', address);
 
-    // Validate and update inventory
+    // Validate inventory before creating order
+    console.log('Validating inventory...');
     await validateAndUpdateInventory(items);
+    console.log('Inventory validated');
 
-    // Create the order with the new address ID
+    // Create the order
+    console.log('Creating order...');
     const order = await Order.create({
       userId,
       items,
-      addressId: address._id // Use the created address's ID
+      addressId: address._id
     });
+    console.log('Created order:', order);
 
-    // Populate the address details in the response
-    const populatedOrder = await Order.findById(order._id).populate('addressId');
-
+    // Populate and return
+    const populatedOrder = await Order.findById(order._id)
+      .populate('addressId')
+      .lean();
+    
+    console.log('Sending response:', populatedOrder);
     res.status(201).json(populatedOrder);
-  } catch (error) {
-    console.error('Order creation error:', error);
-    next(error);
+  } catch (error: any) {
+    console.error('Detailed order creation error:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    
+    res.status(500).json({
+      error: error.message,
+      type: error.name,
+      details: error.errors || error.details
+    });
   }
 };
 
