@@ -38,7 +38,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-app.use(globalErrorHandlingMiddleware);
+//app.use(globalErrorHandlingMiddleware);
 
 connectDB();
 const PORT = process.env.PORT || 8000;

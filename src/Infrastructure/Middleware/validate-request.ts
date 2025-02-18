@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodSchema } from "zod";
+import { ZodSchema, ZodError } from "zod";
 
 export const validateRequest = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -7,12 +7,16 @@ export const validateRequest = (schema: ZodSchema) => {
       await schema.parseAsync(req.body);
       next();
     } catch (error) {
-      res.status(400).json({
-        errors: error.errors.map((err: any) => ({
-          field: err.path.join("."),
-          message: err.message,
-        })),
-      });
+      if (error instanceof ZodError) {
+        res.status(400).json({
+          errors: error.errors.map((err) => ({
+            field: err.path.join("."),
+            message: err.message,
+          })),
+        });
+      } else {
+        next(error);
+      }
     }
   };
 }; 

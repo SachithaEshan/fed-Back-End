@@ -9,7 +9,7 @@ export const getCategories = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const categories = await Category.find().sort({ name: 1 });
     res.status(200).json(categories);
@@ -22,13 +22,14 @@ export const createCategory = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const { name, description } = req.body;
     
     const existingCategory = await Category.findOne({ name });
     if (existingCategory) {
-      return res.status(400).json({ errors: ["Category with this name already exists"] });
+      res.status(400).json({ errors: ["Category with this name already exists"] });
+      return;
     }
 
     const category = new Category({ name, description });
@@ -48,7 +49,7 @@ export const getCategory = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const id = req.params.id;
     const category = await Category.findById(id);
@@ -57,7 +58,6 @@ export const getCategory = async (
     }
 
     res.status(200).json(category);
-    return;
   } catch (error) {
     next(error);
   }
@@ -67,7 +67,7 @@ export const deleteCategory = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const id = req.params.id;
     const category = await Category.findByIdAndDelete(id);
@@ -76,7 +76,6 @@ export const deleteCategory = async (
       throw new NotFoundError("Product not found");
     }
     res.status(204).send();
-    return;
   } catch (error) {
     next(error);
   }
@@ -86,7 +85,7 @@ export const updateCategory = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const id = req.params.id;
     const category = await Category.findByIdAndUpdate(id, req.body);
@@ -96,7 +95,6 @@ export const updateCategory = async (
     }
 
     res.status(200).send(category);
-    return 
   } catch (error) {
     next(error);
   }

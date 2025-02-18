@@ -1,45 +1,46 @@
 import { Request, Response, NextFunction } from "express";
 
+interface CustomError extends Error {
+  status?: number;
+  name: string;
+}
+
 const globalErrorHandlingMiddleware = (
-  error: Error,
+  error: CustomError,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   console.log(error);
   if (error.name === "NotFoundError") {
-    res
+    return res
       .status(404)
       .json({
         message: error.message,
-      })
-      .send();
-    return;
-  } else if (error.name === "ValidationError") {
-    res
+      });
+  } 
+  
+  if (error.name === "ValidationError") {
+    return res
       .status(400)
       .json({
         message: error.message,
-      })
-      .send();
-    return;
-  } else if (error.name === "UnauthorizedError") {
-    res
+      });
+  } 
+  
+  if (error.name === "UnauthorizedError") {
+    return res
       .status(401)
       .json({
         message: error.message,
-      })
-      .send();
-    return;
-  } else {
-    res
-      .status(500)
-      .json({
-        message: error.message,
-      })
-      .send();
-    return;
+      });
   }
+  
+  return res
+    .status(error.status || 500)
+    .json({
+      message: error.message || 'Internal server error',
+    });
 };
 
 export default globalErrorHandlingMiddleware;
