@@ -1,9 +1,10 @@
-import { AuthObject } from "@clerk/express";
+
+import { Clerk } from "@clerk/nextjs";
 
 declare global {
   namespace Express {
     interface Request {
-      auth: AuthObject;
+      auth?: Clerk.User; // This will be the type of the authenticated user
     }
   }
-} 
+}
