@@ -21,8 +21,10 @@ app.use(json());
 
 //app.use(cors({ origin: "https://fed-storefront-frontend-sachitha.netlify.app" }));
 app.use(cors({
-  origin:"https://fed-storefront-backend-sachitha.netlify.app",
-  credentials: true
+  origin: "https://fed-storefront-frontend-sachitha.netlify.app",
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 app.use(clerkMiddleware());
 
