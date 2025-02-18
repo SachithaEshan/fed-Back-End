@@ -21,7 +21,7 @@ app.use(json());
 
 //app.use(cors({ origin: "https://fed-storefront-frontend-sachitha.netlify.app" }));
 app.use(cors({
-  origin:"https://fed-storefront-frontend-sachitha.netlify.app",
+  origin:"https://fed-storefront-backend-sachitha.netlify.app",
   credentials: true
 }));
 app.use(clerkMiddleware());
