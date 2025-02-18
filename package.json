@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "build": "npm install",
+    "build": "npm install && npm ci",
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
@@ -18,7 +18,8 @@
     "get-intrinsic": "1.2.1",
     "gopd": "1.0.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.8.4",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.0.0",
     "qs": "6.11.0",
     "side-channel": "1.0.4",
     "zod": "^3.24.1"
@@ -32,6 +33,7 @@
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=9.0.0"
   }
 }
