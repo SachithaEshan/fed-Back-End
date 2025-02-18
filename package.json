@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "build": "npm install && npm ci",
+    "build": "export NODE_OPTIONS=\"--max-old-space-size=4096\" && npm install && npm ci",
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
@@ -27,13 +27,14 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/mime": "^4.0.0",
     "@types/node": "^22.10.5",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   },
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=9.0.0"
+    "node": "18.x",
+    "npm": "9.x"
   }
 }
