@@ -89,20 +89,23 @@ export const createOrder = async (
       throw new ValidationError("User must be authenticated");
     }
 
-    // Log the received data
-    console.log('Received order data:', { items, shippingAddress, userId });
+    // First create the address
+    const address = await Address.create(shippingAddress);
 
     // Validate and update inventory
     await validateAndUpdateInventory(items);
 
-    // Create the order
+    // Create the order with the new address ID
     const order = await Order.create({
       userId,
       items,
-      addressId: shippingAddress,
+      addressId: address._id // Use the created address's ID
     });
 
-    res.status(201).json(order);
+    // Populate the address details in the response
+    const populatedOrder = await Order.findById(order._id).populate('addressId');
+
+    res.status(201).json(populatedOrder);
   } catch (error) {
     console.error('Order creation error:', error);
     next(error);
