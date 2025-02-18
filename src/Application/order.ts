@@ -83,11 +83,11 @@ export const createOrder = async (
 ) => {
   try {
     const { items, shippingAddress } = CreateOrderDTO.parse(req.body);
+    const { userId } = getAuth(req);
     
-    if (!req.auth?.userId) {
+    if (!userId) {
       throw new ValidationError("User must be authenticated");
     }
-    const userId = req.auth.userId;
 
     // Log the received data
     console.log('Received order data:', { items, shippingAddress, userId });
@@ -137,10 +137,11 @@ export const getMyOrders = async (
   next: NextFunction
 ) => {
   try {
-    if (!req.auth?.userId) {
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
       throw new ValidationError("User must be authenticated");
     }
-    const userId = req.auth.userId;
     
     console.log("Fetching orders for user:", userId);
 
