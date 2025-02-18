@@ -8,27 +8,36 @@ import { createCategory, getCategories } from "../Application/category";
 import { isAuthenticated } from "./middleware/authentication-middleware";
 import { isAdmin } from "./middleware/authorization-middleware";
 import asyncHandler from "express-async-handler";
+import { Request } from "express";
+import { AuthObject } from "@clerk/express";
+
+// Define the type for authenticated requests
+type AuthenticatedRequest = Request & {
+  auth: AuthObject;
+};
 
 export const categoryRouter = express.Router();
 
-// Type assertion to handle the authenticated request
-categoryRouter.route("/")
-  .get(asyncHandler(getCategories))
-  .post(
-    isAuthenticated,
-    asyncHandler(isAdmin as RequestHandler),
-    asyncHandler(createCategory as RequestHandler)
-  );
+// Public route
+categoryRouter.get("/", asyncHandler(getCategories));
+
+// Protected routes
+categoryRouter.post(
+  "/",
+  isAuthenticated as RequestHandler,
+  asyncHandler(isAdmin as RequestHandler),
+  asyncHandler((req, res, next) => createCategory(req as AuthenticatedRequest, res, next))
+);
 
 categoryRouter.route("/:id")
   .get(asyncHandler(getCategory))
   .delete(
-    isAuthenticated,
+    isAuthenticated as RequestHandler,
     asyncHandler(isAdmin as RequestHandler),
-    asyncHandler(deleteCategory as RequestHandler)
+    asyncHandler((req, res, next) => deleteCategory(req as AuthenticatedRequest, res, next))
   )
   .patch(
-    isAuthenticated,
+    isAuthenticated as RequestHandler,
     asyncHandler(isAdmin as RequestHandler),
-    asyncHandler(updateCategory as RequestHandler)
+    asyncHandler((req, res, next) => updateCategory(req as AuthenticatedRequest, res, next))
   );
