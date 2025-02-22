@@ -104,13 +104,19 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
   try {
     const { name, price, description, categoryId, image, inventory } = req.body;
 
+    // Explicitly convert inventory to number and validate
+    const inventoryNumber = Number(inventory);
+    if (isNaN(inventoryNumber)) {
+      throw new Error('Inventory must be a valid number');
+    }
+
     const product = new Product({
       name,
       price: Number(price),
       description,
       categoryId,
       image,
-      inventory: Number(inventory)
+      inventory: inventoryNumber // Store as number
     });
 
     await product.save();

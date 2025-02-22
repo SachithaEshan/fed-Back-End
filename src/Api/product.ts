@@ -14,6 +14,7 @@ const productRouter = express.Router();
 // Public routes
 productRouter.get("/", asyncHandler(getProducts)); // ✅ Wrap with asyncHandler
 productRouter.get("/:id", asyncHandler(getProduct)); // ✅ Wrap with asyncHandler
+productRouter.patch("/:id", asyncHandler(updateProduct)); // ✅ Wrap with asyncHandler
 
 // Admin protected routes
 productRouter.post("/", isAuthenticated, isAdmin, asyncHandler(createProduct)); // ✅ Fix async

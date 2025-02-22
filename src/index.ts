@@ -11,6 +11,7 @@ import { categoryRouter } from "./Api/category";
 import { paymentsRouter } from "./Api/payment";
 import { clerkMiddleware } from "@clerk/express";
 import "dotenv/config";
+import savedItemsRouter from "./Api/savedItems";
 
 
 
@@ -21,7 +22,8 @@ app.use(json());
 
 const allowedOrigins = [
   'https://fed-storefront-backend-sachitha.netlify.app',
-  'https://fed-storefront-frontend-sachitha.netlify.app'
+  'https://fed-storefront-frontend-sachitha.netlify.app',
+  // 'http://localhost:5173'
 ];
 
 app.use(cors({
@@ -46,7 +48,7 @@ app.use("/Api/products", productRouter);
 app.use("/Api/categories", categoryRouter);
 app.use("/Api/orders", orderRouter);
 app.use("/Api/payments", paymentsRouter);
-
+app.use("/Api/savedItems", savedItemsRouter);
 // Error handling middleware should be last
 //app.use(errorHandler);
 // Global error handler
