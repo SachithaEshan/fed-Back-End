@@ -54,16 +54,23 @@ async function validateAndUpdateInventory(items: any[]) {
         throw new ValidationError(`Product ${item.product._id} not found`);
       }
 
-      if (product.inventory < item.quantity) {
+      // Ensure inventory is a number
+      const currentInventory = Number(product.inventory);
+      if (isNaN(currentInventory)) {
+        throw new ValidationError(`Invalid inventory value for product ${product.name}`);
+      }
+
+      if (currentInventory < item.quantity) {
         throw new ValidationError(
-          `Insufficient stock for product ${product.name}. Available: ${product.inventory}, Requested: ${item.quantity}`
+          `Insufficient stock for product ${product.name}. Available: ${currentInventory}, Requested: ${item.quantity}`
         );
       }
 
+      // Update with explicit number conversion
       await Product.findByIdAndUpdate(
         item.product._id,
-        { $inc: { inventory: -item.quantity } },
-        { session }
+        { $set: { inventory: currentInventory - item.quantity } },
+        { session, new: true }
       );
     }
 
@@ -81,6 +88,9 @@ export const createOrder = async (
   res: Response,
   next: NextFunction
 ) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     console.log('Received request body:', req.body);
     
@@ -88,50 +98,53 @@ export const createOrder = async (
     console.log('Parsed DTO data:', { items, shippingAddress });
     
     const { userId } = getAuth(req);
-    console.log('User ID from auth:', userId);
-    
     if (!userId) {
       throw new ValidationError("User must be authenticated");
     }
 
-    // Create the address first
-    console.log('Creating address...');
-    const address = await Address.create(shippingAddress);
-    console.log('Created address:', address);
-
-    // Validate inventory before creating order
-    console.log('Validating inventory...');
+    // Create address with session
+    const address = await Address.create([shippingAddress], { session });
+    
+    // Validate inventory
     await validateAndUpdateInventory(items);
-    console.log('Inventory validated');
 
-    // Create the order
-    console.log('Creating order...');
-    const order = await Order.create({
+    // Create order with session
+    const order = await Order.create([{
       userId,
       items,
-      addressId: address._id
-    });
-    console.log('Created order:', order);
+      addressId: address[0]._id
+    }], { session });
+
+    await session.commitTransaction();
 
     // Populate and return
-    const populatedOrder = await Order.findById(order._id)
+    const populatedOrder = await Order.findById(order[0]._id)
       .populate('addressId')
       .lean();
     
-    console.log('Sending response:', populatedOrder);
     res.status(201).json(populatedOrder);
   } catch (error: any) {
-    console.error('Detailed order creation error:', {
+    await session.abortTransaction();
+    
+    console.error('Order creation error:', {
       name: error.name,
       message: error.message,
       stack: error.stack
     });
-    
+
+    if (error instanceof ValidationError) {
+      return res.status(400).json({
+        error: error.message,
+        type: 'ValidationError'
+      });
+    }
+
     res.status(500).json({
-      error: error.message,
-      type: error.name,
-      details: error.errors || error.details
+      error: 'Failed to create order',
+      details: error.message
     });
+  } finally {
+    session.endSession();
   }
 };
 
@@ -173,6 +186,7 @@ export const getMyOrders = async (
 
     const orders = await Order.find({ userId })
       .sort({ createdAt: -1 })
+      
       .lean()
       .exec();
 
