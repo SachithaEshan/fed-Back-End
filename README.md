@@ -2,9 +2,8 @@
 
 This is the backend for the Fed Storefront, an e-commerce platform that allows users to browse products, place orders, and manage their accounts. The backend is built using Node.js, Express, MongoDB, and Clerk for authentication.
 
-## Live Website
-
-[Visit the Fed Storefront](https://fed-storefront-backend-sachitha.netlify.app)
+🔗 **Live Website:** [FED Storefront](https://fed-storefront-backend-sachitha.netlify.app)    
+🔗 **Frontend:** [FED Storefrontend](https://github.com/SachithaEshan/fed-frontend)
 
 ## Features
 - User authentication and authorization using Clerk
